@@ -1,6 +1,7 @@
 import numpy as np
 from numbers import Number
 
+
 class Idemplus:
 
     def __init__(self, element, zero, one, plus):
@@ -46,8 +47,10 @@ class Idemplus:
         self.one = one
 
         self.plus = plus
+        
+        self.minimum = lambda a,b: self.times(a,b)-self.plus(a,b)
 
-
+    
     def __eq__(self, other):
 
         return all([
@@ -177,10 +180,50 @@ class Idemplus:
             
             raise ValueError('Exponents need to be numbers.')
             
+    def left_residual(self, X):
+        
+        if not (type(X) == type(self)):
+            
+            raise TypeError('You can only residuate by elements of the same algebra.')
+        
+        
+        x,y = X.shape
+        m,n = self.shape
+        if x == m:
+            
+            if isinstance(self, Maxplus):
+                
+                X_conj = Minplus(-X.element.transpose())
 
+                doppelganger = Minplus(self.element)
+                
+            elif isinstance(self, Minplus):
+                
+                X_conj = Maxplus(-X.element.transpose())
+
+                doppelganger = Maxplus(self.element)
+                
+            else: 
+                
+                raise TypeError("Don't know how to conjugate in this algebra.")
+ 
+            return X_conj*doppelganger
+    
+            #return Idemplus(
+            #   element= (X_conj*doppelganger).element,
+            #   zero=self.zero,
+            #   one=self.one,
+            #   plus=self.plus
+            #)
+        
+        else:
+            
+            raise ValueError(f'Wrong dimensions. The row dimensione must be {self.shap[0]}.')       
+            
+            
     def isNumber(self):
 
-        return isinstance(self.element, int) or isinstance(self.element, float)
+        return isinstance(self.element, Number)
 
     def isMatrix(self):
 
