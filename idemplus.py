@@ -92,78 +92,75 @@ class Idemplus:
                    raise ValueError('Matrices have different shapes.')
     
     def __mul__(self, other):
-
-       if sameType(self, other):
-
-           if self.isNumber():
-       
-               return Idemplus(
-                   element=self.times(self.element, other.element),
-                   zero=self.zero,
-                   one=self.one,
-                   plus=self.plus
-               )
-
-
-           else:
-
-               m,n = self.shape
-               p,q = other.shape
-
-               if n == p:
-
-                   M = np.empty(dtype=np.float, shape=(m,q))
-
-                   for i in range(m):
-
-                       for j in range(q):
-
-                           entry = Idemplus(
-                               element=self.zero,
-                               zero=self.zero,
-                               one=self.one,
-                               plus=self.plus
-                           )
-
+        
+        if sameType(self, other):
             
+            if self.isNumber():
+                
+                return Idemplus(
+                    element=self.times(self.element, other.element),
+                    zero=self.zero,
+                    one=self.one,
+                    plus=self.plus
+                )
 
-                       for k in range(n):
+            else:
+            
+                m,n = self.shape
+                p,q = other.shape
 
-                           c = Idemplus(
-                               element=self.times(
-                                   a=self.element[i][k],
-                                   b=other.element[k][j],
-                               ),
-                               zero=self.zero,
-                               one=self.one,
-                               plus=self.plus
-                           )        
+                if n == p:
 
-                           # checking if c >= entry
-                           # according to the present order relation
-                           # reminder : a <= b iff a+b=b 
-                           # analogously to set inclusion and union
-                                  
-                           if entry + c == c:
+                    M = np.empty(dtype=np.float, shape=(m,q))
+                   
+                    for i in range(m):
+
+                        for j in range(q):
+
+                            entry = Idemplus(
+                                element=self.zero,
+                                zero=self.zero,
+                                one=self.one,
+                                plus=self.plus
+                            )
+
+                            for k in range(n):
+
+                                c = Idemplus(
+                                    element=self.times(
+                                        a=self.element[i][k],
+                                        b=other.element[k][j],
+                                    ),
+                                    zero=self.zero,
+                                    one=self.one,
+                                    plus=self.plus
+                                )        
+
+                                # checking if c >= entry
+                                # according to the present order relation
+                                # reminder : a <= b iff a+b=b 
+                                # analogously to set inclusion and union
+
+                                if entry + c == c:
+                                    
+                                    entry = c
                             
-                               entry = c
-                           
-                       M[i][j] = entry.element        
-           
-               return Idemplus(element=M, zero=self.zero, one=self.one, plus=self.plus)
+                                M[i][j] = entry.element        
+            
+                return Idemplus(element=M, zero=self.zero, one=self.one, plus=self.plus)
 
            #else:
 
            #    raise ValueError(f'Can\'t multiply elements of shape {self.shape} and {other.shape}')
  
-       elif any([self.isNumber(), other.isNumber()]):
-
+        elif any([self.isNumber(), other.isNumber()]):
+        # needs a fix, it doesn't contemplate addition with infinities
            return Idemplus(
                element=self.element + other.element,
                zero=self.zero,
                one=self.one,
                plus=self.plus  
-               )
+           )
 
     def __pow__(self, other):
         
@@ -207,14 +204,13 @@ class Idemplus:
                 
                 raise TypeError("Don't know how to conjugate in this algebra.")
  
-            return X_conj*doppelganger
     
-            #return Idemplus(
-            #   element= (X_conj*doppelganger).element,
-            #   zero=self.zero,
-            #   one=self.one,
-            #   plus=self.plus
-            #)
+            return Idemplus(
+               element= (X_conj*doppelganger).element,
+               zero=self.zero,
+               one=self.one,
+               plus=self.plus
+            )
         
         else:
             
