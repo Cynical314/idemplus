@@ -1,6 +1,6 @@
 import numpy as np
 from numbers import Number
-
+from functools import reduce
 
 class Idemplus:
 
@@ -165,13 +165,36 @@ class Idemplus:
     def __pow__(self, other):
         
         if isinstance(other, Number):
-    
-            return Idemplus(
-                element=self.element * other,
-                zero=self.zero,
-                one=self.one,
-                plus=self.plus  
-            )
+            
+            if self.isNumber():
+                
+                return Idemplus(
+                    element=self.element * other,
+                    zero=self.zero,
+                    one=self.one,
+                    plus=self.plus  
+                )
+            
+            else:
+                
+                if isinstance(other, int):
+                    
+                    result = Idemplus(
+                        element=self.element,
+                         zero=self.zero,
+                        one=self.one,
+                        plus=self.plus  
+                    )
+                    
+                    for i in range(1, other):
+                        
+                        result = result * self
+                        
+                    return result
+                
+                else:
+                    
+                    raise ValueError('Exponents of matrices need to be integers.')
 
         else:
             
@@ -211,11 +234,50 @@ class Idemplus:
                one=self.one,
                plus=self.plus
             )
-        
+         
         else:
             
-            raise ValueError(f'Wrong dimensions. The row dimensione must be {self.shap[0]}.')       
+            raise ValueError(f'Wrong dimensions. The row dimension must be {self.shap[0]}.')       
+    
+    def right_residual(self, X):
+        
+        if not (type(X) == type(self)):
             
+            raise TypeError('You can only residuate by elements of the same algebra.')
+        
+        
+        x,y = X.shape
+        m,n = self.shape
+        if y == n:
+            
+            if isinstance(self, Maxplus):
+                
+                X_conj = Minplus(-X.element.transpose())
+
+                doppelganger = Minplus(self.element)
+                
+            elif isinstance(self, Minplus):
+                
+                X_conj = Maxplus(-X.element.transpose())
+
+                doppelganger = Maxplus(self.element)
+                
+            else: 
+                
+                raise TypeError("Don't know how to conjugate in this algebra.")
+ 
+    
+            return Idemplus(
+               element= (doppelganger*X_conj).element,
+               zero=self.zero,
+               one=self.one,
+               plus=self.plus
+            )
+         
+        else:
+            
+            raise ValueError(f'Wrong dimensions. The column dimension must be {self.shape[1]}.')       
+    
             
     def isNumber(self):
 
