@@ -69,8 +69,9 @@ class Idemplus:
 
         self.plus = plus
         
-        self.minimum = lambda a,b: self.times(a,b)-self.plus(a,b)
-
+        self.top = -zero
+        
+        self.bottom = zero
     
     def __eq__(self, other):
 
@@ -227,6 +228,19 @@ class Idemplus:
             
             raise TypeError('You can only residuate by elements of the same algebra.')
         
+        if self.isNumber() and X.isNumber():
+            
+            return Idemplus(
+               element= number_residuation(
+                   a=self.element, 
+                   b=X.element,
+                   bottom=self.bottom, 
+                   top=self.top
+               ),
+               zero=self.zero,
+               one=self.one,
+               plus=self.plus
+            )
         
         x,y = X.shape
         m,n = self.shape
@@ -266,6 +280,19 @@ class Idemplus:
             
             raise TypeError('You can only residuate by elements of the same algebra.')
         
+        if self.isNumber() and X.isNumber():
+            
+            return Idemplus(
+               element= number_residuation(
+                   a=self.element, 
+                   b=X.element,
+                   bottom=self.bottom, 
+                   top=self.top
+               ),
+               zero=self.zero,
+               one=self.one,
+               plus=self.plus
+            )
         
         x,y = X.shape
         m,n = self.shape
@@ -297,7 +324,22 @@ class Idemplus:
          
         else:
             
-            raise ValueError(f'Wrong dimensions. The column dimension must be {self.shape[1]}.')       
+            raise ValueError(f'Wrong dimensions. The column dimension must be {self.shape[1]}.')
+            
+    def scalar_residual(self, scalar):
+        
+        if type(self) == type(scalar) and scalar.isNumber():
+            
+            return Idemplus(
+               element= self.element - scalar.element,
+               zero=self.zero,
+               one=self.one,
+               plus=self.plus
+            )
+        
+        else:
+            
+            raise TypeError(f'Scalar has to be a number of type {type(self)}')
     
             
     def isNumber(self):
@@ -465,6 +507,26 @@ def elementwise(operation, A, B):
             M[i][j] = operation(A[i][j], B[i][j])
 
     return M         
+
+#residuating a by b (a/b or b\a)
+def number_residuation(a, b, bottom, top):
+        
+    if b == bottom:
+        
+        return top if a == bottom else bottom
+    
+    elif b == top:
+        
+        return top if a == top else bottom
+    
+    else:
+        
+        return a-b
+        
+        
+            
+    
+            
     
     
     
