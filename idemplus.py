@@ -1,12 +1,10 @@
 import numpy as np
 from numbers import Number
-from functools import reduce
 
 class Idemplus:
 
-    def __init__(self, element, zero, one, plus):
-
-        
+    def __init__(self, element, zero, one, plus, size=None):
+                    
         if isinstance(element, list):
 
             if all(
@@ -36,6 +34,29 @@ class Idemplus:
         elif isinstance(element, Number):
 
             self.element = np.float(element)
+            
+        elif element == 'identity':
+            
+            if size is not None:
+        
+                I = np.full((size,size), zero)
+                np.fill_diagonal(I, one)
+        
+                self.element = I
+
+            else: 
+
+                self.element = one
+                
+        elif element == 'zero':
+            
+            if size is not None:
+        
+                self.element = np.full((size,size), zero)
+
+            else: 
+
+                self.element = zero
 
         else:
 
@@ -338,7 +359,6 @@ class Idemplus:
             return dg
  
 
-
     def trace(self, to_obj=True):
 
         if self.isNumber() or not self.isSquared():
@@ -387,6 +407,18 @@ class Idemplus:
 
                 return maxcm.element
             
+    def kleene_star(self):
+        
+        if self.isSquared():
+            
+            if self.max_cycle_mean() < 0:
+
+                result = I
+
+                for i in range(0):
+                    
+                    pass
+            
 
     def __repr__(self):
 
@@ -394,28 +426,28 @@ class Idemplus:
 
 class Maxplus(Idemplus):
 
-    def __init__(self, element):
+    def __init__(self, element, size=None):
 
         super().__init__(
             element=element,
             zero=-np.inf,
             one=0,
-            plus=lambda x,y:max(x,y)
+            plus=lambda x,y:max(x,y),
+            size=size
         )         
-
+        
 class Minplus(Idemplus):
 
-    def __init__(self, element):
+    def __init__(self, element, size=None):
 
         super().__init__(
             element=element,
             zero=np.inf,
             one=0,
-            plus=lambda x,y:min(x,y)
+            plus=lambda x,y:min(x,y),
+            size=size
         )         
-
-
-
+        
 def sameType(a, b):
 
     return (a.isNumber()==b.isNumber()) or (a.isMatrix()==b.isMatrix())
@@ -433,5 +465,7 @@ def elementwise(operation, A, B):
             M[i][j] = operation(A[i][j], B[i][j])
 
     return M         
-
-
+    
+    
+    
+    
