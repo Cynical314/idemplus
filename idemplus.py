@@ -15,7 +15,7 @@ class Idemplus:
                     
                 for i in range(len(element))
             ):
-                self.element = np.array(element)
+                self.element = np.array(element).astype(np.float)
         
         elif isinstance(element, np.ndarray):
 
@@ -242,37 +242,25 @@ class Idemplus:
                plus=self.plus
             )
         
-        x,y = X.shape
-        m,n = self.shape
-        if x == m:
+        elif self.isMatrix() and X.isMatrix():
             
-            if isinstance(self, Maxplus):
-                
-                X_conj = Minplus(-X.element.transpose())
-
-                doppelganger = Minplus(self.element)
-                
-            elif isinstance(self, Minplus):
-                
-                X_conj = Maxplus(-X.element.transpose())
-
-                doppelganger = Maxplus(self.element)
-                
-            else: 
-                
-                raise TypeError("Don't know how to conjugate in this algebra.")
- 
-    
-            return Idemplus(
-               element= (X_conj*doppelganger).element,
-               zero=self.zero,
-               one=self.one,
-               plus=self.plus
-            )
-         
+            return matrix_residuation(self, X, side='left')
+        
+        elif self.isMatrix() and X.isNumber():
+            
+            return scalar_residuation(self, X)
+        
         else:
             
-            raise ValueError(f'Wrong dimensions. The row dimension must be {self.shap[0]}.')       
+            class_of_self = getattr(self, '__class__')
+
+            return matrix_residuation(
+                A=class_of_self(
+                    element=[[self.element]],
+                ), 
+                B=X, 
+                side='left'
+            )
     
     def right_residual(self, X):
         
@@ -294,53 +282,25 @@ class Idemplus:
                plus=self.plus
             )
         
-        x,y = X.shape
-        m,n = self.shape
-        if y == n:
+        elif self.isMatrix() and X.isMatrix():
             
-            if isinstance(self, Maxplus):
-                
-                X_conj = Minplus(-X.element.transpose())
-
-                doppelganger = Minplus(self.element)
-                
-            elif isinstance(self, Minplus):
-                
-                X_conj = Maxplus(-X.element.transpose())
-
-                doppelganger = Maxplus(self.element)
-                
-            else: 
-                
-                raise TypeError("Don't know how to conjugate in this algebra.")
- 
-    
-            return Idemplus(
-               element= (doppelganger*X_conj).element,
-               zero=self.zero,
-               one=self.one,
-               plus=self.plus
-            )
-         
-        else:
-            
-            raise ValueError(f'Wrong dimensions. The column dimension must be {self.shape[1]}.')
-            
-    def scalar_residual(self, scalar):
+            return matrix_residuation(self, X, side='right')
         
-        if type(self) == type(scalar) and scalar.isNumber():
+        elif self.isMatrix() and X.isNumber():
             
-            return Idemplus(
-               element= self.element - scalar.element,
-               zero=self.zero,
-               one=self.one,
-               plus=self.plus
-            )
+            return scalar_residuation(self, X)
         
         else:
             
-            raise TypeError(f'Scalar has to be a number of type {type(self)}')
-    
+            class_of_self = getattr(self, '__class__')
+
+            return matrix_residuation(
+                A=class_of_self(
+                    element=[[self.element]]
+                ), 
+                B=X, 
+                side='right'
+            )
             
     def isNumber(self):
 
@@ -522,6 +482,69 @@ def number_residuation(a, b, bottom, top):
     else:
         
         return a-b
+    
+#residuating A by B (A/B or B\A if side is 'right' or 'left', respectively)
+def matrix_residuation(A, B, side='right'):
+    
+    x,y = B.shape
+    m,n = A.shape
+    if (side == 'left' and x == m) or (side =='right' and y == n):
+
+        if isinstance(A, Maxplus):
+
+            B_conj = Minplus(-B.element.transpose())
+
+            doppelganger = Minplus(A.element)
+
+        elif isinstance(A, Minplus):
+
+            B_conj = Maxplus(-B.element.transpose())
+
+            doppelganger = Maxplus(A.element)
+
+        else: 
+
+            raise TypeError("Don't know how to conjugate in this algebra.")
+
+        
+        
+        element = (B_conj*doppelganger).element if side == 'left' else (doppelganger*B_conj).element
+        class_of_A = getattr(A, '__class__')
+        
+        return class_of_A(element)
+    
+    else:
+        
+        axis = "rows" if side == 'left' else "columns"
+        dim = A.shape[0] if side == 'left' else A.shape[1]
+        
+        raise ValueError(
+            f"Wrongs dimensions. The {axis} index must be {dim}"
+        )
+
+    
+def scalar_residuation(A, b):
+    
+    m,n = A.shape
+    
+    A_copy = np.array(A.element)
+    b = b.element
+    for i in range(m):
+        for j in range(n):
+            A_copy[i][j] = number_residuation(
+                a=A_copy[i][j], 
+                b=b,
+                bottom=A.bottom,
+                top=A.top
+            )
+        
+    return Idemplus(
+        element=A_copy,
+        zero=A.zero,
+        one=A.one,
+        plus=A.plus
+    )
+    
         
         
             
