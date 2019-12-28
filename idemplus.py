@@ -39,7 +39,7 @@ class Idemplus:
             
             if size is not None:
         
-                I = np.full((size,size), zero)
+                I = np.full((size,size), -zero)
                 np.fill_diagonal(I, one)
         
                 self.element = I
@@ -60,8 +60,7 @@ class Idemplus:
 
         else:
 
-            raise ValueError('Wrong element type: use numbers, lists of lists, and numpy arrays only.')  
-            
+            raise ValueError('Wrong element type: use numbers, lists of lists, and numpy arrays only.')        
         
         self.zero = zero
 
@@ -75,6 +74,9 @@ class Idemplus:
         
         self.own_class = getattr(self, '__class__')
 
+    def doppelganger(self):
+        
+        return self.dual_class(self.element)
     
     def __eq__(self, other):
 
@@ -162,8 +164,7 @@ class Idemplus:
                             
                                 M[i][j] = entry.element        
                 
-                class_of_self = getattr(self, '__class__')
-                return class_of_self(element=M)
+                return self.own_class(element=M)
 
            #else:
 
