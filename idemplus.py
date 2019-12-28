@@ -76,42 +76,47 @@ class Idemplus:
     def __eq__(self, other):
 
         return all([
-            type(self) == type(other),
-            self.element == other.element, 
-            self.shape == other.shape
+            #type(self) == type(other),
+            self.element == other.element
+            if self.isNumber() 
+            else (self.element == other.element).all()
         ]) 
 
+    def __le__(self, other):  
+
+        return self + other == other
+    
     def __add__(self, other):
 
-       if sameType(self, other):
-
-           if self.isNumber():
-
-               return Idemplus(
-                   element=self.plus(self.element, other.element),
-                   zero=self.zero,
-                   one=self.one,
-                   plus=self.plus
-               )
-
-           else:
-
-               if self.shape == other.shape:
-
-                   return Idemplus(
-                       element=elementwise(
-                           operation=self.plus, 
-                           A=self.element, 
-                           B=other.element
-                       ),
-                       zero=self.zero,
-                       one=self.one,
-                       plus=self.plus
-                   )
-               
-               else:
-
-                   raise ValueError('Matrices have different shapes.')
+        if sameType(self, other):
+         
+            if self.isNumber():
+ 
+                return Idemplus(
+                    element=self.plus(self.element, other.element),
+                    zero=self.zero,
+                    one=self.one,
+                    plus=self.plus
+                )
+ 
+            else:
+ 
+                if self.shape == other.shape:
+ 
+                    return Idemplus(
+                        element=elementwise(
+                            operation=self.plus, 
+                            A=self.element, 
+                            B=other.element
+                        ),
+                        zero=self.zero,
+                        one=self.one,
+                        plus=self.plus
+                    )
+                
+                else:
+ 
+                    raise ValueError('Matrices have different shapes.')
     
     def __mul__(self, other):
         
@@ -168,8 +173,9 @@ class Idemplus:
                                     entry = c
                             
                                 M[i][j] = entry.element        
-            
-                return Idemplus(element=M, zero=self.zero, one=self.one, plus=self.plus)
+                
+                class_of_self = getattr(self, '__class__')
+                return class_of_self(element=M)
 
            #else:
 
@@ -468,6 +474,20 @@ def elementwise(operation, A, B):
 
     return M         
 
+
+def inverse(a, bottom, top):
+    
+    if a == bottom:
+        
+        return top
+    
+    elif a == top:
+        
+        return bottom
+    else:
+        
+        return -a
+
 #residuating a by b (a/b or b\a)
 def number_residuation(a, b, bottom, top):
         
@@ -483,11 +503,18 @@ def number_residuation(a, b, bottom, top):
         
         return a-b
     
+def number_residuation_alternative(a, b, bottom, top):
+    
+    return a*inverse(b) # commutative...
+    
 #residuating A by B (A/B or B\A if side is 'right' or 'left', respectively)
 def matrix_residuation(A, B, side='right'):
     
     x,y = B.shape
     m,n = A.shape
+    
+    
+    
     if (side == 'left' and x == m) or (side =='right' and y == n):
 
         if isinstance(A, Maxplus):
@@ -505,12 +532,9 @@ def matrix_residuation(A, B, side='right'):
         else: 
 
             raise TypeError("Don't know how to conjugate in this algebra.")
-
-        
         
         element = (B_conj*doppelganger).element if side == 'left' else (doppelganger*B_conj).element
         class_of_A = getattr(A, '__class__')
-        
         return class_of_A(element)
     
     else:
@@ -545,11 +569,29 @@ def scalar_residuation(A, b):
         plus=A.plus
     )
     
-        
-        
-            
+def semimodule_residuation(A, B):
     
-            
+    
+    m,n = A.shape
+    
+    A_copy = np.array(A.element)
+    b = b.element
+    for i in range(m):
+        for j in range(n):
+            A_copy[i][j] = number_residuation(
+                a=A_copy[i][j], 
+                b=B.element[i][j],
+                bottom=A.bottom,
+                top=A.top
+            )
+        
+    return Idemplus(
+        element=A_copy,
+        zero=A.zero,
+        one=A.one,
+        plus=A.plus
+    )
+    
     
     
     
