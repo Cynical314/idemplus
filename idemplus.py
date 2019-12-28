@@ -234,11 +234,9 @@ class Idemplus:
             return scalar_residuation(self, X)
         
         else:
-            
-            class_of_self = getattr(self, '__class__')
-
+        
             return matrix_residuation(
-                A=class_of_self(
+                A=self.own_class(
                     element=[[self.element]],
                 ), 
                 B=X, 
@@ -272,16 +270,24 @@ class Idemplus:
         
         else:
             
-            class_of_self = getattr(self, '__class__')
-
             return matrix_residuation(
-                A=class_of_self(
+                A=self.own_class(
                     element=[[self.element]]
                 ), 
                 B=X, 
                 side='right'
             )
             
+    def inverse(self):
+        
+        return self.own_class(
+            inverse(
+                a=self.element,
+                bottom=self.bottom,
+                top=self.top
+            )
+        )
+    
     def isNumber(self):
 
         return isinstance(self.element, Number)
@@ -453,16 +459,31 @@ def elementwise(operation, A, B):
 
 def inverse(a, bottom, top):
     
-    if a == bottom:
+    if isinstance(a, Number):
         
-        return top
+        if a == bottom:
+
+            return top
+
+        elif a == top:
+
+            return bottom
+        else:
+
+            return -a
     
-    elif a == top:
-        
-        return bottom
     else:
         
-        return -a
+        m,n = a.shape
+        a_copy = np.array(a)
+        
+        for i in range(m):
+            for j in range(n):
+                
+                a_copy[i][j] = inverse(a[i][j], bottom, top)
+        
+        return a_copy
+    
 
 #residuating a by b (a/b or b\a)
 def number_residuation(a, b, bottom, top):
@@ -510,8 +531,8 @@ def matrix_residuation(A, B, side='right'):
             raise TypeError("Don't know how to conjugate in this algebra.")
         
         element = (B_conj*doppelganger).element if side == 'left' else (doppelganger*B_conj).element
-        class_of_A = getattr(A, '__class__')
-        return class_of_A(element)
+
+        return A.own_class(element)
     
     else:
         
