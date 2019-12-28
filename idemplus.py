@@ -72,6 +72,9 @@ class Idemplus:
         self.top = -zero
         
         self.bottom = zero
+        
+        self.own_class = getattr(self, '__class__')
+
     
     def __eq__(self, other):
 
@@ -92,26 +95,20 @@ class Idemplus:
          
             if self.isNumber():
  
-                return Idemplus(
-                    element=self.plus(self.element, other.element),
-                    zero=self.zero,
-                    one=self.one,
-                    plus=self.plus
+                return self.own_class(
+                    element=self.plus(self.element, other.element)
                 )
  
             else:
  
                 if self.shape == other.shape:
  
-                    return Idemplus(
+                    return self.own_class(
                         element=elementwise(
                             operation=self.plus, 
                             A=self.element, 
                             B=other.element
-                        ),
-                        zero=self.zero,
-                        one=self.one,
-                        plus=self.plus
+                        )
                     )
                 
                 else:
@@ -124,11 +121,8 @@ class Idemplus:
             
             if self.isNumber():
                 
-                return Idemplus(
-                    element=self.times(self.element, other.element),
-                    zero=self.zero,
-                    one=self.one,
-                    plus=self.plus
+                return self.own_class(
+                    element=self.times(self.element, other.element)
                 )
 
             else:
@@ -144,23 +138,17 @@ class Idemplus:
 
                         for j in range(q):
 
-                            entry = Idemplus(
-                                element=self.zero,
-                                zero=self.zero,
-                                one=self.one,
-                                plus=self.plus
+                            entry = self.own_class(
+                                element=self.zero
                             )
 
                             for k in range(n):
 
-                                c = Idemplus(
+                                c = self.own_class(
                                     element=self.times(
                                         a=self.element[i][k],
                                         b=other.element[k][j],
-                                    ),
-                                    zero=self.zero,
-                                    one=self.one,
-                                    plus=self.plus
+                                    )
                                 )        
 
                                 # checking if c >= entry
@@ -183,11 +171,8 @@ class Idemplus:
  
         elif any([self.isNumber(), other.isNumber()]):
         # needs a fix, it doesn't contemplate addition with infinities
-           return Idemplus(
-               element=self.element + other.element,
-               zero=self.zero,
-               one=self.one,
-               plus=self.plus  
+           return self.own_class(
+               element=self.element + other.element
            )
 
     def __pow__(self, other):
@@ -196,22 +181,16 @@ class Idemplus:
             
             if self.isNumber():
                 
-                return Idemplus(
-                    element=self.element * other,
-                    zero=self.zero,
-                    one=self.one,
-                    plus=self.plus  
+                return self.own_class(
+                    element=self.element * other
                 )
             
             else:
                 
                 if isinstance(other, int):
                     
-                    result = Idemplus(
-                        element=self.element,
-                         zero=self.zero,
-                        one=self.one,
-                        plus=self.plus  
+                    result = self.own_class(
+                        element=self.element
                     )
                     
                     for i in range(1, other):
@@ -236,16 +215,13 @@ class Idemplus:
         
         if self.isNumber() and X.isNumber():
             
-            return Idemplus(
-               element= number_residuation(
+            return self.own_class(
+               element=number_residuation(
                    a=self.element, 
                    b=X.element,
                    bottom=self.bottom, 
                    top=self.top
-               ),
-               zero=self.zero,
-               one=self.one,
-               plus=self.plus
+               )
             )
         
         elif self.isMatrix() and X.isMatrix():
@@ -276,16 +252,13 @@ class Idemplus:
         
         if self.isNumber() and X.isNumber():
             
-            return Idemplus(
+            return self.own_classs(
                element= number_residuation(
                    a=self.element, 
                    b=X.element,
                    bottom=self.bottom, 
                    top=self.top
-               ),
-               zero=self.zero,
-               one=self.one,
-               plus=self.plus
+               )
             )
         
         elif self.isMatrix() and X.isMatrix():
@@ -352,11 +325,8 @@ class Idemplus:
         if to_obj:
 
             return [
-                Idemplus(
-                    element=el,
-                    zero=self.zero,
-                    one=self.one,
-                    plus=self.plus
+                self.own_class(
+                    element=el
                 )
 
                 for el in dg
@@ -442,7 +412,9 @@ class Maxplus(Idemplus):
             one=0,
             plus=lambda x,y:max(x,y),
             size=size
-        )         
+        )
+        
+        self.dual_class = Minplus
         
 class Minplus(Idemplus):
 
@@ -454,7 +426,10 @@ class Minplus(Idemplus):
             one=0,
             plus=lambda x,y:min(x,y),
             size=size
-        )         
+        )
+        
+        self.dual_class = Maxplus
+
         
 def sameType(a, b):
 
@@ -562,11 +537,8 @@ def scalar_residuation(A, b):
                 top=A.top
             )
         
-    return Idemplus(
-        element=A_copy,
-        zero=A.zero,
-        one=A.one,
-        plus=A.plus
+    return A.own_classs(
+        element=A_copy
     )
     
 def semimodule_residuation(A, B):
@@ -585,11 +557,8 @@ def semimodule_residuation(A, B):
                 top=A.top
             )
         
-    return Idemplus(
-        element=A_copy,
-        zero=A.zero,
-        one=A.one,
-        plus=A.plus
+    return A.own_class(
+        element=A_copy
     )
     
     
