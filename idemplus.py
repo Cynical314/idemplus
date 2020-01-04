@@ -39,7 +39,7 @@ class Idemplus:
             
             if size is not None:
         
-                I = np.full((size,size), -zero)
+                I = np.full((size,size), zero)
                 np.fill_diagonal(I, one)
         
                 self.element = I
@@ -76,7 +76,7 @@ class Idemplus:
 
     def doppelganger(self):
         
-        return self.dual_class(self.element)
+        return self.inverse_class(self.element)
     
     def __eq__(self, other):
 
@@ -172,9 +172,16 @@ class Idemplus:
  
         elif any([self.isNumber(), other.isNumber()]):
         # needs a fix, it doesn't contemplate addition with infinities
-           return self.own_class(
-               element=self.element + other.element
-           )
+        
+            mat,num = (self, other) if other.isNumber() else (other, self)
+            
+            return self.own_class(
+                elementwise(
+                    operation=self.times,
+                    A=mat.element,
+                    B=np.full(mat.shape, num.element)
+                )
+            )
 
     def __pow__(self, other):
         
@@ -287,6 +294,38 @@ class Idemplus:
                 top=self.top
             )
         )
+    
+    def left_conjugate(self):
+        
+        if self.isNumber():
+            
+            return self.inverse() # make sure it's theoretically sound in general...
+        
+        else:
+            
+            m,n = self.shape
+            
+            I_d = self.inverse_class('identity', size=n).doppelganger()
+        
+            return I_d.right_residual(self)
+
+    def right_conjugate(self):
+        
+        if self.isNumber():
+            
+            return self.inverse() # make sure it's theoretically sound in general...
+        
+        else:
+            
+            m,n = self.shape
+            
+            I_d = self.inverse_class('identity', size=m).doppelganger()
+    
+            return I_d.left_residual(self)
+    
+    def transpose(self):
+        
+        return self.inverse().right_conjugate()
     
     def isNumber(self):
 
@@ -421,7 +460,7 @@ class Maxplus(Idemplus):
             size=size
         )
         
-        self.dual_class = Minplus
+        self.inverse_class = Minplus
         
 class Minplus(Idemplus):
 
@@ -435,7 +474,7 @@ class Minplus(Idemplus):
             size=size
         )
         
-        self.dual_class = Maxplus
+        self.inverse_class = Maxplus
 
         
 def sameType(a, b):
@@ -499,10 +538,6 @@ def number_residuation(a, b, bottom, top):
     else:
         
         return a-b
-    
-def number_residuation_alternative(a, b, bottom, top):
-    
-    return a*inverse(b) # commutative...
     
 #residuating A by B (A/B or B\A if side is 'right' or 'left', respectively)
 def matrix_residuation(A, B, side='right'):
