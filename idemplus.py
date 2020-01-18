@@ -2,9 +2,9 @@ import numpy as np
 from numbers import Number
 
 class Idemplus:
-
-    def __init__(self, element, zero, one, plus, size=None):
-                    
+    
+    def __init__(self, element, zero, one, plus, size=None, diag=None):
+        
         if isinstance(element, list):
 
             if all(
@@ -57,6 +57,15 @@ class Idemplus:
             else: 
 
                 self.element = zero
+                
+        elif element == 'diagonal' and diag != None:
+            
+            size = len(diag)
+            D = np.full((size, size), zero)
+            for i in range(size):
+                D[i][i] = diag[i]
+                
+            self.element = D
 
         else:
 
@@ -74,6 +83,7 @@ class Idemplus:
         
         self.own_class = getattr(self, '__class__')
 
+    
     def doppelganger(self):
         
         return self.inverse_class(self.element)
@@ -81,14 +91,14 @@ class Idemplus:
     def __eq__(self, other):
 
         return all([
-            #type(self) == type(other),
+            type(self) == type(other),
             self.element == other.element
             if self.isNumber() 
             else (self.element == other.element).all()
         ]) 
 
     def __le__(self, other):  
-
+        
         return self + other == other
     
     def __add__(self, other):
@@ -164,11 +174,11 @@ class Idemplus:
                             
                                 M[i][j] = entry.element        
                 
-                return self.own_class(element=M)
+                    return self.own_class(element=M)
 
-           #else:
+                else:
 
-           #    raise ValueError(f'Can\'t multiply elements of shape {self.shape} and {other.shape}')
+                    raise ValueError(f'Can\'t multiply elements of shape {self.shape} and {other.shape}')
  
         elif any([self.isNumber(), other.isNumber()]):
         # needs a fix, it doesn't contemplate addition with infinities
@@ -450,32 +460,34 @@ class Idemplus:
 
 class Maxplus(Idemplus):
 
-    def __init__(self, element, size=None):
+    def __init__(self, element, size=None, diag=None):
 
         super().__init__(
             element=element,
             zero=-np.inf,
             one=0,
             plus=lambda x,y:max(x,y),
-            size=size
+            size=size,
+            diag=diag
         )
         
         self.inverse_class = Minplus
         
 class Minplus(Idemplus):
 
-    def __init__(self, element, size=None):
+    def __init__(self, element, size=None, diag=None):
 
         super().__init__(
             element=element,
             zero=np.inf,
             one=0,
             plus=lambda x,y:min(x,y),
-            size=size
+            size=size,
+            diag=diag
         )
         
         self.inverse_class = Maxplus
-
+        
         
 def sameType(a, b):
 
@@ -617,8 +629,4 @@ def semimodule_residuation(A, B):
     return A.own_class(
         element=A_copy
     )
-    
-    
-    
-    
     
