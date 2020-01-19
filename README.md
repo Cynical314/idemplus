@@ -106,7 +106,7 @@ print(type(v))
     <class 'idemplus.Minplus'>
 
 
-The canonical completions of the maxplus (minplus) semifield is correspond precisely to the completed maxplus (minplus) and minplus (maxplus) idempotent semifields. 
+The canonical completions of the maxplus (minplus) semifield correspond precisely to the completed maxplus (minplus) and minplus (maxplus) idempotent semifields. 
 
 
 ```python
@@ -262,4 +262,4 @@ A.doppelganger()*B.right_conjugate().doppelganger()
 
 
 
-Beware, the latter is an instance of *Minplus*, as it is the product of doppelganger of instances of *Maxplus*.
+Beware, the latter is an instance of *Minplus*.
