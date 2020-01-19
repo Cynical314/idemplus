@@ -1,4 +1,4 @@
-$\textit{idemplus}$ is a python module for computations in linear algebras over $\mathbb{R}_{max,+}$ and $\mathbb{R}_{min,+}$, modelled by classes $\textbf{Maxplus}$ and $\textbf{Minplus}$, respectively. They are coded as subclasses of class $\textbf{Idemplus}$, a general class for any algebra over an idempotent semifield with values in $\mathbb{R}$ and sum $+$ as its product $\otimes$, where the addition $\oplus$ can be any idempotent operation. 
+**idemplus** is a python module for computations in (linear) maxplus and minplus algebras, modelled by classes **Maxplus** and **Minplus**, respectively. They are coded as subclasses of class **Idemplus**, a general class for any algebra over an idempotent semifield over the reals and sum + as its product and any idempotent operation as its addition.
 Regardless of dimensions, scalars and matrices are represented as instances of the same class.
 
 
@@ -15,7 +15,7 @@ B = Maxplus([
 ])
 ```
 
-Moreover, the class handles the product between elements of compatible dimensions.
+The class handles the product between elements of compatible dimensions
 
 
 ```python
@@ -30,10 +30,7 @@ a*B
 
 
 
-
-```python
-It alerts you when something goes wrong.
-```
+and alerts you when something goes wrong.
 
 
 ```python
@@ -109,7 +106,7 @@ print(type(v))
     <class 'idemplus.Minplus'>
 
 
-The algebras over $\mathbb{R}_{max,+}$ and $\mathbb{R}_{min,+}$ can be extended naturally when the two idempotent semifields are replaced by their canonical completions $\overline{\mathbb{R}}_{max,+}$ and $\overline{\mathbb{R}}_{min,+}$, because the latter are the lower (upper) and upper (lower) canonical completion of $\mathbb{R}_{max,+}$ ($\mathbb{R}_{min,+}$) as a lattice-ordered semifield.
+The canonical completions of the maxplus (minplus) semifield is correspond precisely to the completed maxplus (minplus) and minplus (maxplus) idempotent semifields. 
 
 
 ```python
@@ -139,7 +136,7 @@ A*B
 
 
 
-but they have a doppelganger in $\textbf{Minplus}$, that multiply as it's rule for instances of $\textbf{Minplus}$.
+Any element of one algebra can thought of as an element of the other or as having a doppelganger in it.
 
 
 ```python
@@ -164,3 +161,105 @@ A.doppelganger()*B.doppelganger()
      [ 1.  7.]]
 
 
+
+The class **Idemplus** provides generalised support for residuation to the left (B\A)
+
+
+```python
+A.left_residual(B)
+```
+
+
+
+
+    [[ 1.  2.]
+     [-6. -5.]]
+
+
+
+
+```python
+A.left_residual(B)
+```
+
+
+
+
+    [[ 1.  2.]
+     [-6. -5.]]
+
+
+
+and to the right (A/B)
+
+
+```python
+A.right_residual(B)
+```
+
+
+
+
+    [[-2. -7.]
+     [ 0. -5.]]
+
+
+
+It can be verified as an exercise that, for these values of A and B, B\*(B\A)=A but (A/B)\*B < B, a fact that has has strong links to the existence of solutions of some systems of linear equations over this algebra.
+
+An element can be inverted by using the *inverse* method.
+
+
+```python
+print(A.inverse())
+print(a.inverse())
+```
+
+    [[-1. -2.]
+     [-3. -4.]]
+    -3.0
+
+
+The inverse of a matrix is calculating applying inversion of elements over the maxplus or minplus semifield, elementwise. 
+Residuating A by B can be thought of as multiplying A by the appropriate conjugate of B in the dual algebra, which over maxplus and minplus is is nothing but the transpose with inverted elements. 
+
+
+```python
+B.right_conjugate()
+```
+
+
+
+
+    [[ 0.  3.]
+     [-4. -9.]]
+
+
+
+
+```python
+A.right_residual(B)
+```
+
+
+
+
+    [[-2. -7.]
+     [ 0. -5.]]
+
+
+
+
+```python
+A.doppelganger()*B.right_conjugate().doppelganger()
+```
+
+
+
+
+    [[-2. -7.]
+     [ 0. -5.]]
+
+
+
+Beware, the latter is an instance of *Minplus*.
