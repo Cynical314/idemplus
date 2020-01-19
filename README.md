@@ -221,7 +221,7 @@ print(a.inverse())
 
 
 The inverse of a matrix is calculated applying inversion of elements over the maxplus or minplus semifield, elementwise. 
-Residuating A by B can be thought of as multiplying A by the appropriate conjugate of B in the dual algebra, which over maxplus and minplus is is nothing but the transpose with inverted elements. 
+Residuating A by B can be thought of as multiplying A by the appropriate conjugate of B in the dual algebra, which over maxplus and minplus is nothing but the transpose with inverted elements. 
 
 
 ```python
