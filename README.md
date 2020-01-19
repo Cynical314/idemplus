@@ -121,7 +121,7 @@ B = Maxplus([
 ])
 ```
 
-$A$ and $B$ can be multiplied as instances of $\textbf{Maxplus}$
+A and B can be multiplied as instances of *Maxplus*
 
 
 ```python
@@ -205,7 +205,7 @@ A.right_residual(B)
 
 
 
-It can be verified as an exercise that, for these values of A and B, B\*(B\A)=A but (A/B)\*B < B, a fact that has has strong links to the existence of solutions of some systems of linear equations over this algebra.
+It can be verified as an exercise that, for these values of A and B, B\*(B\A)=A but (A/B)\*B < B, a fact that has strong links to the existence of solutions of some systems of linear equations over this algebra.
 
 An element can be inverted by using the *inverse* method.
 
@@ -262,4 +262,4 @@ A.doppelganger()*B.right_conjugate().doppelganger()
 
 
 
-Beware, the latter is an instance of *Minplus*.
+Beware, the latter is an instance of *Minplus*, as it is the product of doppelganger of instances of *Maxplus*.
