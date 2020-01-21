@@ -587,7 +587,7 @@ def matrix_residuation(A, B, side='right'):
         dim = A.shape[0] if side == 'left' else A.shape[1]
         
         raise ValueError(
-            f"Wrongs dimensions. The {axis} index must be {dim}"
+            f"Wrongs dimensions. The number of {axis} must be {dim}"
         )
 
     
