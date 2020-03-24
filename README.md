@@ -1,3 +1,5 @@
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 **idemplus** is a python module for computations in (linear) maxplus and minplus algebras, modelled by classes **Maxplus** and **Minplus**, respectively. They are coded as subclasses of class **Idemplus**, a general class for any algebra over an idempotent semifield over the reals and sum + as its product and any idempotent operation as its addition.
 Regardless of dimensions, scalars and matrices are represented as instances of the same class.
 
