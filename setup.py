@@ -12,7 +12,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'concepts==0.9.1',
-        'numpy==1.18.2',
+        'numpy==1.22.0',
         'pandas==1.0.3'
     ]
 )
